@@ -1,10 +1,10 @@
 /* GeoWatch AI MVP. All indicator values below are synthetic demonstration data. */
 const cities=[
-{id:"abu",ar:"أبوظبي",en:"Abu Dhabi",lat:24.4539,lng:54.3773,value:72},
-{id:"dubai",ar:"دبي",en:"Dubai",lat:25.2048,lng:55.2708,value:84},
-{id:"sharjah",ar:"الشارقة",en:"Sharjah",lat:25.3463,lng:55.4209,value:65},
-{id:"ajman",ar:"عجمان",en:"Ajman",lat:25.4052,lng:55.5136,value:58},
-{id:"fujairah",ar:"الفجيرة",en:"Fujairah",lat:25.1288,lng:56.3265,value:79}
+{id:"abu",ar:"أبوظبي",en:"Abu Dhabi",lat:24.4539,lng:54.3773,value:72,type:"urban"},
+{id:"dubai",ar:"دبي",en:"Dubai",lat:25.2048,lng:55.2708,value:84,type:"urban"},
+{id:"sharjah",ar:"الشارقة",en:"Sharjah",lat:25.3463,lng:55.4209,value:65,type:"urban"},
+{id:"ajman",ar:"عجمان",en:"Ajman",lat:25.4052,lng:55.5136,value:58,type:"environment"},
+{id:"fujairah",ar:"الفجيرة",en:"Fujairah",lat:25.1288,lng:56.3265,value:79,type:"environment"}
 ];
 const copy={
 ar:{subtitle:"منصة التحليل الجغرافي",demo:"بيانات تجريبية",navTitle:"لوحة المراقبة",navDashboard:"نظرة عامة",navMap:"الخريطة التفاعلية",navAnalysis:"تحليل المواقع",note:"البيانات المعروضة توضيحية وليست مراقبة حية.",heading:"لوحة المراقبة الجغرافية",description:"استكشف مؤشرات توضيحية لمدن الإمارات العربية المتحدة.",status:"الوضع التجريبي",metric1:"المواقع المعروضة",metric1sub:"مدن في الإمارات",metric2:"المواقع المحددة",metric2sub:"حسب الفلتر الحالي",metric3:"مصدر البيانات",metric3sub:"لا توجد بيانات مباشرة",mapHeading:"الخريطة التفاعلية",mapCaption:"اختر مدينة لعرض معلوماتها التجريبية.",filterLabel:"تصفية حسب المدينة",reset:"إعادة ضبط",detailHeading:"تحليل الموقع",detailHint:"اضغط على علامة في الخريطة لاختيار موقع.",locationLabel:"الموقع",indicatorLabel:"المؤشر التوضيحي",updatedLabel:"حالة البيانات",updated:"تجريبية",disclaimer:"هذه المؤشرات مولدة للعرض فقط، ولا تمثل قياسات بيئية أو أمنية فعلية أو استنتاجات ذكاء اصطناعي موثقة.",footer:"GeoWatch AI · إصدار تجريبي · لا يتضمن مراقبة مباشرة أو تحليل أقمار صناعية فعلي.",all:"جميع المدن",popup:"مؤشر تجريبي"},
@@ -20,13 +20,14 @@ for(const [key,val] of Object.entries(t)){const el=document.getElementById(key);
 document.getElementById("language").textContent=lang==="ar"?"English":"العربية";
 const sel=document.getElementById("city"),old=sel.value;sel.replaceChildren();
 const all=document.createElement("option");all.value="all";all.textContent=t.all;sel.appendChild(all);
+[["urban",lang==="ar"?"مواقع حضرية":"Urban sites"],["environment",lang==="ar"?"مواقع بيئية":"Environmental sites"]].forEach(([id,label])=>{const o=document.createElement("option");o.value=id;o.textContent=label;sel.appendChild(o)});
 cities.forEach(c=>{const o=document.createElement("option");o.value=c.id;o.textContent=c[lang];sel.appendChild(o)});
 sel.value=old&&[...sel.options].some(o=>o.value===old)?old:"all";
 draw();
 }
 function draw(){
 const filter=document.getElementById("city").value;
-const visible=cities.filter(c=>filter==="all"||c.id===filter);
+const visible=cities.filter(c=>filter==="all"||c.id===filter||filter===c.type);
 document.getElementById("selectedCount").textContent=visible.length;
 layer.clearLayers();
 visible.forEach(c=>{L.marker([c.lat,c.lng]).addTo(layer).bindPopup('<strong>'+c[lang]+'</strong><p>'+copy[lang].popup+': '+c.value+'/100</p>').on("click",()=>selectCity(c))});
